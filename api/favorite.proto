@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package favorite;
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/KRUL-marketplace/krul_backend/internal/favorite_service;favorite_service";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Krul API"
+    version: "1.0.0"
+  };
+
+  host: "localhost:8084",
+  schemes: HTTP,
+  schemes: HTTPS,
+  consumes: "application/json",
+  produces: "application/json"
+};
+
+// Описание сервиса FavoriteService
+service FavoriteService {
+  // Добавить/удалить товар
+  rpc ToggleProduct(ToggleProductRequest) returns (ToggleProductResponse) {
+    option (google.api.http) = {
+      post: "/v1/favorite/toggle",
+      body: '*'
+    };
+  }
+  // Получить избранное по ID пользователя
+  rpc GetFavoriteListById(GetFavoriteListByIdRequest) returns (GetFavoriteListByIdResponse) {
+    option (google.api.http) = {
+      get: "/v1/favorite",
+    };
+  }
+}
+
+// Запрос для добавления/удаления продукта
+message ToggleProductRequest {
+  string user_id = 1; // ID пользователя, который добавляет
+  string product_id = 2; // ID товара, который добавляют
+}
+
+// Ответ на добавление/удаление продукта
+message ToggleProductResponse {
+  bool success = 1; // Статус выполнения операции
+}
+
+// Получить избранное по ID пользователя
+message GetFavoriteListByIdRequest {
+  string user_id = 1; // ID пользователя
+}
+
+// Ответ на получение избранного по ID
+message GetFavoriteListByIdResponse {
+  FavoriteList favorite_list = 1; // Избранное пользователя
+}
+
+// Структура списка желаний
+message FavoriteList {
+  string favorite_list_id = 1; // ID списка
+  string user_id = 2; // ID пользователя
+  google.protobuf.Timestamp created_at = 3; // Дата создания
+  google.protobuf.Timestamp updated_at = 4; // Дата обновления
+  repeated FavoriteItem items = 5; // Список товаров
+}
+
+// Структура товара в списке желаний
+message FavoriteItem {
+  string item_id = 1; // ID продукта в списке желаний
+  string product_id = 2; // ID продукта
+  FavoriteProductInfo product_info = 3; // Инфа о продукте
+  google.protobuf.Timestamp created_at = 4; // Дата создания
+  google.protobuf.Timestamp updated_at = 5; // Дата обновления
+}
+
+// Инфа о продукте
+message FavoriteProductInfo {
+  string name = 1; // Название
+  string slug = 2; // SLUG
+  string image = 3; // Изображение
+  uint32 price = 4; // Цена
+  Brand brand = 5; // Бренд
+}
+
+// Бренд
+message Brand {
+  uint32 id = 1; // Идентификатор бренда
+  BrandInfo info = 2; // Информация о бренде
+  google.protobuf.Timestamp created_at = 3; // Время создания бренда
+  google.protobuf.Timestamp updated_at = 4; // Время последнего обновления бренда
+}
+
+
+// Информация для создания нового бренда
+message BrandInfo {
+  string name = 1; // Наименование бренда
+  string slug = 2; // Уникальный идентификатор бренда
+  string description = 3; // Описание бренда
+}

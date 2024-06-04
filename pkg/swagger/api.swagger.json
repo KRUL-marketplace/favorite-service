@@ -1,0 +1,284 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Krul API",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "FavoriteService"
+    }
+  ],
+  "host": "localhost:8084",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/favorite": {
+      "get": {
+        "summary": "Получить избранное по ID пользователя",
+        "operationId": "FavoriteService_GetFavoriteListById",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/favoriteGetFavoriteListByIdResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "description": "ID пользователя",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "FavoriteService"
+        ]
+      }
+    },
+    "/v1/favorite/toggle": {
+      "post": {
+        "summary": "Добавить/удалить товар",
+        "operationId": "FavoriteService_ToggleProduct",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/favoriteToggleProductResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/favoriteToggleProductRequest"
+            }
+          }
+        ],
+        "tags": [
+          "FavoriteService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "favoriteBrand": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "title": "Идентификатор бренда"
+        },
+        "info": {
+          "$ref": "#/definitions/favoriteBrandInfo",
+          "title": "Информация о бренде"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Время создания бренда"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Время последнего обновления бренда"
+        }
+      },
+      "title": "Бренд"
+    },
+    "favoriteBrandInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Наименование бренда"
+        },
+        "slug": {
+          "type": "string",
+          "title": "Уникальный идентификатор бренда"
+        },
+        "description": {
+          "type": "string",
+          "title": "Описание бренда"
+        }
+      },
+      "title": "Информация для создания нового бренда"
+    },
+    "favoriteFavoriteItem": {
+      "type": "object",
+      "properties": {
+        "itemId": {
+          "type": "string",
+          "title": "ID продукта в списке желаний"
+        },
+        "productId": {
+          "type": "string",
+          "title": "ID продукта"
+        },
+        "productInfo": {
+          "$ref": "#/definitions/favoriteFavoriteProductInfo",
+          "title": "Инфа о продукте"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Дата создания"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Дата обновления"
+        }
+      },
+      "title": "Структура товара в списке желаний"
+    },
+    "favoriteFavoriteList": {
+      "type": "object",
+      "properties": {
+        "favoriteListId": {
+          "type": "string",
+          "title": "ID списка"
+        },
+        "userId": {
+          "type": "string",
+          "title": "ID пользователя"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Дата создания"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Дата обновления"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/favoriteFavoriteItem"
+          },
+          "title": "Список товаров"
+        }
+      },
+      "title": "Структура списка желаний"
+    },
+    "favoriteFavoriteProductInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Название"
+        },
+        "slug": {
+          "type": "string",
+          "title": "SLUG"
+        },
+        "image": {
+          "type": "string",
+          "title": "Изображение"
+        },
+        "price": {
+          "type": "integer",
+          "format": "int64",
+          "title": "Цена"
+        },
+        "brand": {
+          "$ref": "#/definitions/favoriteBrand",
+          "title": "Бренд"
+        }
+      },
+      "title": "Инфа о продукте"
+    },
+    "favoriteGetFavoriteListByIdResponse": {
+      "type": "object",
+      "properties": {
+        "favoriteList": {
+          "$ref": "#/definitions/favoriteFavoriteList",
+          "title": "Избранное пользователя"
+        }
+      },
+      "title": "Ответ на получение избранного по ID"
+    },
+    "favoriteToggleProductRequest": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "title": "ID пользователя, который добавляет"
+        },
+        "productId": {
+          "type": "string",
+          "title": "ID товара, который добавляют"
+        }
+      },
+      "title": "Запрос для добавления/удаления продукта"
+    },
+    "favoriteToggleProductResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "Статус выполнения операции"
+        }
+      },
+      "title": "Ответ на добавление/удаление продукта"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

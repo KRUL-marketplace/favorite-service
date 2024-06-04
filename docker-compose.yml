@@ -1,0 +1,42 @@
+version: '3.5'
+
+volumes:
+  postgres_user_volume:
+
+networks:
+  test:
+    external: true
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+    ports:
+      - "5435:5432"
+    networks:
+      - test
+
+  migrator:
+    build:
+      context: .
+      dockerfile: migration.Dockerfile
+    restart: on-failure
+    env_file:
+      - .env
+    networks:
+      - test
+
+  favorite-service:
+    restart: always
+    build: .
+    depends_on:
+      - postgres
+    ports:
+      - "${GRPC_PORT:-5004}:${GRPC_PORT:-5004}"
+      - "${HTTP_PORT:-8084}:${HTTP_PORT:-8084}"
+      - "${SWAGGER_PORT:-8094}:${SWAGGER_PORT:-8094}"
+    networks:
+      - test
