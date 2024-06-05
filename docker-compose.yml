@@ -4,7 +4,7 @@ volumes:
   postgres_user_volume:
 
 networks:
-  test:
+  product_catalog_network:
     external: true
 
 services:
@@ -17,7 +17,7 @@ services:
     ports:
       - "5435:5432"
     networks:
-      - test
+      - product_catalog_network
 
   migrator:
     build:
@@ -27,7 +27,7 @@ services:
     env_file:
       - .env
     networks:
-      - test
+      - product_catalog_network
 
   favorite-service:
     restart: always
@@ -39,4 +39,4 @@ services:
       - "${HTTP_PORT:-8084}:${HTTP_PORT:-8084}"
       - "${SWAGGER_PORT:-8094}:${SWAGGER_PORT:-8094}"
     networks:
-      - test
+      - product_catalog_network
