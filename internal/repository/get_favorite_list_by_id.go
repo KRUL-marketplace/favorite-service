@@ -90,9 +90,6 @@ func (r *repo) GetFavoriteListById(ctx context.Context, userId string) (*model.F
 
 		if productID.Valid {
 			productIDS = append(productIDS, productID.String)
-		}
-
-		if productID.Valid {
 			favoriteList.Items = append(favoriteList.Items, favoriteItem)
 		}
 	}
