@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"github.com/KRUL-marketplace/favorite-service/client/db"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -108,6 +109,10 @@ func (r *repo) ToggleProduct(ctx context.Context, userID, productID string) erro
 		}
 	}
 
+	if err := r.delFavoriteListFromRedis(ctx, userID); err != nil {
+		return err
+	}
+
 	log.Printf("Toggled product %s in favorite list %s for user %s\n", productID, favoriteListID, userID)
 
 	return nil
@@ -137,4 +142,8 @@ func (r *repo) createFavoriteList(ctx context.Context, userID string) (string, e
 	}
 
 	return favoriteListID, nil
+}
+
+func (r *repo) delFavoriteListFromRedis(ctx context.Context, userId string) error {
+	return r.redisClient.Del(ctx, fmt.Sprintf("favorite_list:%s", userId)).Err()
 }

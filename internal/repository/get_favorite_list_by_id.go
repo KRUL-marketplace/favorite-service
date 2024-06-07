@@ -3,14 +3,31 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	"github.com/KRUL-marketplace/favorite-service/client/db"
 	"github.com/KRUL-marketplace/favorite-service/internal/converter"
 	"github.com/KRUL-marketplace/favorite-service/internal/repository/model"
 	sq "github.com/Masterminds/squirrel"
+	"github.com/go-redis/redis/v8"
+	"github.com/pkg/errors"
 	"time"
 )
 
+const (
+	REDIS_EXPIRATION = 5 * time.Minute
+)
+
 func (r *repo) GetFavoriteListById(ctx context.Context, userId string) (*model.FavoriteList, error) {
+	cachedFavoriteList, err := r.getFavoriteListFromRedis(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	if cachedFavoriteList != nil {
+		return cachedFavoriteList, nil
+	}
+
 	builder := sq.Select(
 		"f.favorite_list_id",
 		"f.user_id",
@@ -112,5 +129,34 @@ func (r *repo) GetFavoriteListById(ctx context.Context, userId string) (*model.F
 		}
 	}
 
+	if err := r.setFavoriteListFromRedis(ctx, userId, &favoriteList); err != nil {
+		return nil, err
+	}
+
 	return &favoriteList, nil
+}
+
+func (r *repo) getFavoriteListFromRedis(ctx context.Context, userId string) (*model.FavoriteList, error) {
+	data, err := r.redisClient.Get(ctx, fmt.Sprintf("favorite_list:%s", userId)).Result()
+	if errors.Is(err, redis.Nil) {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	var favoriteList model.FavoriteList
+	if err := json.Unmarshal([]byte(data), &favoriteList); err != nil {
+		return nil, err
+	}
+
+	return &favoriteList, nil
+}
+
+func (r *repo) setFavoriteListFromRedis(ctx context.Context, userId string, favoriteList *model.FavoriteList) error {
+	data, err := json.Marshal(favoriteList)
+	if err != nil {
+		return err
+	}
+
+	return r.redisClient.Set(ctx, fmt.Sprintf("favorite_list:%s", userId), data, REDIS_EXPIRATION).Err()
 }

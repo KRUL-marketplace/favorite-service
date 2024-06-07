@@ -5,6 +5,7 @@ import (
 	"github.com/KRUL-marketplace/favorite-service/client/db"
 	productCatalogServiceClient "github.com/KRUL-marketplace/favorite-service/internal/connector/product_service_catalog_connector"
 	"github.com/KRUL-marketplace/favorite-service/internal/repository/model"
+	"github.com/go-redis/redis/v8"
 )
 
 type Repository interface {
@@ -14,12 +15,18 @@ type Repository interface {
 
 type repo struct {
 	db                          db.Client
+	redisClient                 redis.Client
 	productCatalogServiceClient productCatalogServiceClient.ProductCatalogServiceClient
 }
 
-func NewRepository(db db.Client, productCatalogServiceClient productCatalogServiceClient.ProductCatalogServiceClient) Repository {
+func NewRepository(
+	db db.Client,
+	redisClient redis.Client,
+	productCatalogServiceClient productCatalogServiceClient.ProductCatalogServiceClient,
+) Repository {
 	return &repo{
 		db:                          db,
+		redisClient:                 redisClient,
 		productCatalogServiceClient: productCatalogServiceClient,
 	}
 }
