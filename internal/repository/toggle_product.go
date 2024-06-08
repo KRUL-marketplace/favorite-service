@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	"github.com/KRUL-marketplace/favorite-service/client/db"
+	"github.com/KRUL-marketplace/common-libs/pkg/client/db"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"

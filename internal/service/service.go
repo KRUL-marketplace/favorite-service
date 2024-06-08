@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/KRUL-marketplace/favorite-service/client/db"
+	"github.com/KRUL-marketplace/common-libs/pkg/client/db"
 	"github.com/KRUL-marketplace/favorite-service/internal/repository"
 	"github.com/KRUL-marketplace/favorite-service/internal/repository/model"
 )

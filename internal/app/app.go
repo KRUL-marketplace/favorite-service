@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"github.com/KRUL-marketplace/common-libs/pkg/closer"
 	"github.com/KRUL-marketplace/favorite-service/internal/config"
 	desc "github.com/KRUL-marketplace/favorite-service/pkg/favorite-service"
 	_ "github.com/KRUL-marketplace/favorite-service/statik"
@@ -70,6 +71,11 @@ func (a *App) initServiceProvider(ctx context.Context) error {
 }
 
 func (a *App) Run() error {
+	defer func() {
+		closer.CloseAll()
+		closer.Wait()
+	}()
+
 	wg := sync.WaitGroup{}
 	wg.Add(3)
 
